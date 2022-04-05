@@ -1,0 +1,15 @@
+{
+    "SIMPLE_KEY_A": "SIMPLE_KEY_A_AR",
+    "SIMPLE_KEY_B": "SIMPLE_KEY_B_AR",
+    "DEEP_KEY_A": {
+        "LEVEL_1_A": "DEEP_KEY_A_LEVEL_1_A_AR",
+        "LEVEL_1_B": "DEEP_KEY_A_LEVEL_1_B_AR",
+        "LEVEL_1_C": {
+            "LEVEL_2_A": "DEEP_KEY_A_LEVEL_1_B_LEVEL_2_A_AR",
+            "LEVEL_2_B": "DEEP_KEY_A_LEVEL_1_B_LEVEL_2_A_AR"
+        }
+    },
+    "SV_ONLY_KEY_A": "SV_ONLY_KEY_A_AR",
+    "SIMPLE_KEY_C": "SIMPLE_KEY_C_AR {test}",
+    "ICU_CORRECT_KEY_A": "{count, plural, =0{NO_PHOTOS} one{ONE_PHOTO} two{TWO_PHOTOS} few{FEW_PHOTOS} many{MANY_PHOTOS} other{OTHER_PHOTOS}}_AR"
+}
