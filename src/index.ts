@@ -86,18 +86,22 @@ const normalizeLocaleOutput = (languageCode: string, countryCode: string) => {
 }
 
 const normalizeLocaleFrom = (locale: string, divider: string) => {
-    if (locale.indexOf(divider) >= 0) {
-        let localeParts = locale.trim().split(divider)
-        if (localeParts.length >= 2) {
-            localeParts = localeParts.slice(0, 2)
-            const normalizedLocale = normalizeLocaleOutput(
-                localeParts[0],
-                localeParts[1],
-            )
-            if (isValidLocale(normalizedLocale)) {
-                return normalizedLocale
-            }
-        }
+    if (locale.indexOf(divider) < 0) {
+        return undefined
+    }
+
+    let localeParts = locale.trim().split(divider)
+    if (localeParts.length < 2) {
+        return undefined
+    }
+
+    localeParts = localeParts.slice(0, 2)
+    const normalizedLocale = normalizeLocaleOutput(
+        localeParts[0],
+        localeParts[1],
+    )
+    if (isValidLocale(normalizedLocale)) {
+        return normalizedLocale
     }
     return undefined
 }
