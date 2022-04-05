@@ -81,29 +81,38 @@ const parseIcuErrorHandler: I18nIcuParseErrorHandlerFunction = (
     return ''
 }
 
+const normalizeLocaleFrom = (locale: string, divider: string) => {
+    let localeParts = locale.trim().split(divider)
+    if (localeParts.length >= 2) {
+        localeParts[0] = localeParts[0].toLowerCase()
+        localeParts[1] = localeParts[1].toUpperCase()
+        localeParts = localeParts.slice(0, 2)
+        const normalizedLocale = localeParts.join('-')
+        if (isValidLocale(normalizedLocale)) {
+            return normalizedLocale
+        }
+    }
+    return undefined
+}
+
+const normalizeLocaleFromAny = (locale: string, dividers: string) => {
+    let result: string | undefined
+    for (let pos = 0; pos < dividers.length; pos++) {
+        if (locale.indexOf(dividers[pos]) >= 0) {
+            result = normalizeLocaleFrom(locale, dividers[pos])
+            if (result) {
+                break
+            }
+        }
+    }
+    return result
+}
+
 const normalizeLocale = (locale?: string): string | undefined => {
     if (locale && isValidLocale(locale)) {
         return locale
     } else if (locale) {
-        let localeParts: string[] = []
-        if (locale.indexOf('_') >= 0) {
-            localeParts = locale.trim().split('_')
-        } else if (locale.indexOf('/') >= 0) {
-            localeParts = locale.trim().split('/')
-        } else if (locale.indexOf(':') >= 0) {
-            localeParts = locale.trim().split(':')
-        } else if (locale.indexOf('.') >= 0) {
-            localeParts = locale.trim().split('.')
-        }
-        if (localeParts.length >= 2) {
-            localeParts[0] = localeParts[0].toLowerCase()
-            localeParts[1] = localeParts[1].toUpperCase()
-            localeParts = localeParts.slice(0, 2)
-            const normalizedLocale = localeParts.join('-')
-            if (isValidLocale(normalizedLocale)) {
-                return normalizedLocale
-            }
-        }
+        return normalizeLocaleFromAny(locale, '_/:.')
     }
     return undefined
 }
@@ -125,29 +134,35 @@ const translate = (key: string, args?: Record<string, any>): string => {
 
 const getLanguage = (): string | undefined => normalizeLocale(i18next.language)
 
+const handleInitOptions = (options: I18nInitOptions) => {
+    providedIsValidLocale = options.checkValidLocale
+}
+
+const handleI18nOptions = (options: InitOptions) => {
+    debug = !!options.debug
+    providedParseMissingKeyHandler = options.parseMissingKeyHandler
+        ? options.parseMissingKeyHandler
+        : undefined
+
+    providedMissingKeyHandler = options.missingKeyHandler
+        ? options.missingKeyHandler
+        : undefined
+}
+
+const handleIcuOptions = (options?: I18nIcuInitOptions) => {
+    providedIcuParseErrorHandler =
+        options && options.errorHandler ? options.errorHandler : undefined
+}
+
 export const init = (
     options: I18nInitOptions,
     i18nOptions: InitOptions,
     icuOptions?: I18nIcuInitOptions,
 ): I8nServiceInterface => {
-    providedIsValidLocale = options.checkValidLocale
-    debug = !!i18nOptions.debug
-    if (icuOptions && icuOptions.errorHandler) {
-        providedIcuParseErrorHandler = icuOptions.errorHandler
-    } else {
-        providedIcuParseErrorHandler = undefined
-    }
-    if (i18nOptions.parseMissingKeyHandler) {
-        providedParseMissingKeyHandler = i18nOptions.parseMissingKeyHandler
-    } else {
-        providedParseMissingKeyHandler = undefined
-    }
-    if (i18nOptions.missingKeyHandler) {
-        // TODO: check if the value false might be a problem
-        providedMissingKeyHandler = i18nOptions.missingKeyHandler
-    } else {
-        providedMissingKeyHandler = undefined
-    }
+    handleInitOptions(options)
+    handleI18nOptions(i18nOptions)
+    handleIcuOptions(icuOptions)
+
     const i18nPreparedOptions: InitOptions = Object.assign({}, i18nOptions, {
         parseMissingKeyHandler: defaultParseMissingKeyHandler,
         missingKeyHandler: defaultMissingKeyHandler,

@@ -13,8 +13,8 @@
 </p>
 
 <p align="center">
-    <a href="https://codeclimate.com/github/dev-vortex/i18n-icu/maintainability"><img src="https://api.codeclimate.com/v1/badges/a863c129e4f1c747c941/maintainability"/></a>
-    <a href="https://codeclimate.com/github/dev-vortex/i18n-icu/test_coverage"><img src="https://api.codeclimate.com/v1/badges/a863c129e4f1c747c941/test_coverage"/></a>
+    <a href="https://codeclimate.com/github/dev-vortex/i18n-icu/maintainability"><img src="https://api.codeclimate.com/v1/badges/fef0cc28f1635b39fa71/maintainability"/></a>
+    <a href="https://codeclimate.com/github/dev-vortex/i18n-icu/test_coverage"><img src="https://api.codeclimate.com/v1/badges/fef0cc28f1635b39fa71/test_coverage"/></a>
 </p>
 
 <p align="center">
