@@ -81,15 +81,22 @@ const parseIcuErrorHandler: I18nIcuParseErrorHandlerFunction = (
     return ''
 }
 
+const normalizeLocaleOutput = (languageCode: string, countryCode: string) => {
+    return `${languageCode.toLowerCase()}-${countryCode.toUpperCase()}`
+}
+
 const normalizeLocaleFrom = (locale: string, divider: string) => {
-    let localeParts = locale.trim().split(divider)
-    if (localeParts.length >= 2) {
-        localeParts[0] = localeParts[0].toLowerCase()
-        localeParts[1] = localeParts[1].toUpperCase()
-        localeParts = localeParts.slice(0, 2)
-        const normalizedLocale = localeParts.join('-')
-        if (isValidLocale(normalizedLocale)) {
-            return normalizedLocale
+    if (locale.indexOf(divider) >= 0) {
+        let localeParts = locale.trim().split(divider)
+        if (localeParts.length >= 2) {
+            localeParts = localeParts.slice(0, 2)
+            const normalizedLocale = normalizeLocaleOutput(
+                localeParts[0],
+                localeParts[1],
+            )
+            if (isValidLocale(normalizedLocale)) {
+                return normalizedLocale
+            }
         }
     }
     return undefined
@@ -98,11 +105,9 @@ const normalizeLocaleFrom = (locale: string, divider: string) => {
 const normalizeLocaleFromAny = (locale: string, dividers: string) => {
     let result: string | undefined
     for (let pos = 0; pos < dividers.length; pos++) {
-        if (locale.indexOf(dividers[pos]) >= 0) {
-            result = normalizeLocaleFrom(locale, dividers[pos])
-            if (result) {
-                break
-            }
+        result = normalizeLocaleFrom(locale, dividers[pos])
+        if (result) {
+            break
         }
     }
     return result
