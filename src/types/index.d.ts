@@ -1,3 +1,5 @@
+import { InitOptions } from 'i18next'
+
 export type I18nIcuBackendOptions = {
     // per default icu functions are parsed once and cached for subsequent calls
     memoize?: boolean
@@ -14,6 +16,8 @@ export type I18nIcuBackendOptions = {
     // Will be run when parser throws an error. Can return any string, which can be used as a fallback, in case of broken translation.
     // If omitted, the default swallows the error and returns the unsubstituted string (res)
     parseErrorHandler?: I18nIcuParseErrorHandlerFunction
+
+    debug?: boolean
 }
 
 export type I18nIcuParseErrorHandlerFunction = (
@@ -46,7 +50,7 @@ export type MissingKeyHandler =
           key: string,
           fallbackValue: string,
           updateMissing: boolean,
-          options: any,
+          options: InitOptions,
       ) => void)
 
 export interface I8nServiceInterface {

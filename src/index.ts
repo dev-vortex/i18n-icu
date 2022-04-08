@@ -8,6 +8,7 @@ import {
     ParseMissingKeyHandler,
     MissingKeyHandler,
     I8nServiceInterface,
+    I18nIcuBackendOptions,
 } from './types'
 
 let debug = false
@@ -39,13 +40,6 @@ const defaultMissingKeyHandler: MissingKeyHandler = (
     updateMissing,
     options,
 ) => {
-    if (debug) {
-        console.log('i18n-ICU: unknown or missing key', `key ${key}`, 'i18n', {
-            lngs,
-            _ns,
-            key,
-        })
-    }
     if (providedMissingKeyHandler) {
         providedMissingKeyHandler(
             lngs,
@@ -58,25 +52,17 @@ const defaultMissingKeyHandler: MissingKeyHandler = (
     }
 }
 
-const parseIcuErrorHandler: I18nIcuParseErrorHandlerFunction = (
+const parseIcuErrorHandler = (
     error: Error,
     key: string,
     res: string,
-    options: any,
+    options: I18nIcuBackendOptions,
 ) => {
-    if (debug) {
-        console.log(
-            'i18n-ICU: failed to parse translation',
-            `parse error of key '${key}' in '${
-                i18next.language
-            }'; ${error.toString()}`,
-            'ICU',
-            { key, res, options },
-        )
-    }
-
     if (providedIcuParseErrorHandler) {
-        return providedIcuParseErrorHandler(error, key, res, options)
+        return providedIcuParseErrorHandler(error, key, res, {
+            ...options,
+            debug,
+        })
     }
     return ''
 }
@@ -89,11 +75,7 @@ const normalizeLocaleFrom = (locale: string, divider: string) => {
     if (locale.indexOf(divider) < 0) {
         return undefined
     }
-
     let localeParts = locale.trim().split(divider)
-    if (localeParts.length < 2) {
-        return undefined
-    }
 
     localeParts = localeParts.slice(0, 2)
     const normalizedLocale = normalizeLocaleOutput(
@@ -167,9 +149,10 @@ export const init = (
     options: I18nInitOptions,
     i18nOptions: InitOptions,
     icuOptions?: I18nIcuInitOptions,
+    debug = false,
 ): I8nServiceInterface => {
     handleInitOptions(options)
-    handleI18nOptions(i18nOptions)
+    handleI18nOptions({ ...i18nOptions, debug })
     handleIcuOptions(icuOptions)
 
     const i18nPreparedOptions: InitOptions = Object.assign({}, i18nOptions, {
