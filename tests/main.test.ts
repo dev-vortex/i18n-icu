@@ -2,7 +2,12 @@ import { expect } from 'chai'
 import sinon from 'sinon'
 import { InitOptions } from 'i18next'
 import { init } from '../src'
-import { I18nIcuInitOptions, I18nInitOptions } from '../src/types'
+import {
+    I18nIcuInitOptions,
+    I18nIcuParseErrorHandlerFunction,
+    I18nInitOptions,
+    MissingKeyHandler,
+} from '../src/types'
 
 const Locale = {
     EN_US: 'en-US',
@@ -21,14 +26,35 @@ const isValidLocale = (toVerify: unknown): toVerify is AppLocaleValues => {
 
 let deviceLangMock = 'en-US'
 const deviceLocale = () => deviceLangMock
-const icuParseErrorHandler = () => {
+const debgErrorReport = () => undefined
+const debugParseErrorReportSpy = sinon.spy(debgErrorReport)
+const debugMissingKeyErrorReportSpy = sinon.spy(debgErrorReport)
+const icuParseErrorHandler: I18nIcuParseErrorHandlerFunction = (
+    _error,
+    _key,
+    _res,
+    options,
+) => {
+    if (options.debug) {
+        debugParseErrorReportSpy()
+    }
     return 'ICU_ERROR'
 }
 const icuParseErrorHandlerSpy = sinon.spy(icuParseErrorHandler)
 const parseMissingKeyHandler = (key: string) => key
 const parseMissingKeyHandlerSpy = sinon.spy(parseMissingKeyHandler)
 
-const missingKeyHandler = () => {
+const missingKeyHandler: MissingKeyHandler = (
+    _lngs,
+    _ns,
+    _key,
+    _fallbackValue,
+    _updateMissing,
+    options,
+) => {
+    if (options.debug) {
+        debugMissingKeyErrorReportSpy()
+    }
     return
 }
 const missingKeyHandlerSpy = sinon.spy(missingKeyHandler)
@@ -121,18 +147,19 @@ describe('i18n-icu', () => {
             expect(textA).to.be.equal('')
             expect(icuParseErrorHandlerSpy.called).to.be.false
         })
-        // it('should call error ICU default error handler and echo debug info', () => {
-        //     const apiLocal = init(
-        //         initOptions,
-        //         Object.assign(i18nOptions, { debug: true }),
-        //         { errorHandler: undefined } as I18nIcuInitOptions,
-        //     )
-        //     const textA = apiLocal.translate('ICU_CORRECT_KEY_A', {
-        //         not_count: 100,
-        //     })
-        //     expect(textA).to.be.equal('')
-        //     expect(icuParseErrorHandlerSpy.called).to.be.false
-        // })
+        it('should call error ICU debug Error handler', () => {
+            const apiLocal = init(
+                initOptions,
+                i18nOptions,
+                i18nIcuOptions,
+                true,
+            )
+            const textA = apiLocal.translate('ICU_CORRECT_KEY_A', {
+                not_count: 100,
+            })
+            expect(textA).to.be.equal('ICU_ERROR')
+            expect(icuParseErrorHandlerSpy.called).to.be.true
+        })
     })
     describe('getLanguage', () => {
         it('should return current active language `en-US`', () => {
